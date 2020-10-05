@@ -22,6 +22,9 @@ export class FounderConsultService extends BaseService {
     super();
   }
 
+  /**
+   * send warning notification
+   */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async sendWarningNotification() {
     const deliveryFounderConsults = await this.deliveryFounderConsultRepo
