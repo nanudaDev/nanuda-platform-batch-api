@@ -4,6 +4,7 @@ import { BaseService } from '../base.service';
 import * as Slack from 'slack-node';
 import { SLACK_NOTIFICATION_PROPERTY } from '..';
 import { CompanyUser } from 'src/modules/company-user/company-user.entity';
+import { DeliverySpace } from 'src/modules/delivery-space/delivery-space.entity';
 
 @Injectable()
 export class NanudaSlackNotificationService extends BaseService {
@@ -32,20 +33,54 @@ export class NanudaSlackNotificationService extends BaseService {
     return slackFields;
   }
 
-  async sendIncompleteFounderConsultNotification(founderConsultNos: string[]) {
-    const field = this.createMultipleLinks(founderConsultNos);
+  private createMultipleDeliverySpaceLinks(deliverySpace: string[]) {
+    const slackFields = [];
+    deliverySpace.map(id => {
+      slackFields.push({
+        value: `${process.env.ADMIN_BASEURL}delivery-space/${id}`,
+        short: false,
+      });
+    });
+    return slackFields;
+  }
+
+  async sendIncompleteDeliverySpacePictureNotification(
+    deliverySpaceNos: string[],
+  ) {
+    const fields = this.createMultipleDeliverySpaceLinks(deliverySpaceNos);
     const message = {
-      text: `신청 미전달완료 알림`,
+      text: '배달형 공간 사진 등록 미완료 안내',
+      username: SLACK_NOTIFICATION_PROPERTY.pictureReminderNotification,
+      attachments: [
+        {
+          fields: [
+            {
+              title: SLACK_NOTIFICATION_PROPERTY.pictureReminderNotification,
+              value: '공간 사진 등록 미완료 건 안내드립니다.',
+              short: false,
+            },
+            ...fields,
+          ],
+        },
+      ],
+    };
+    this.__send_slack(message);
+  }
+
+  async sendIncompleteFounderConsultNotification(founderConsultNos: string[]) {
+    const fields = this.createMultipleLinks(founderConsultNos);
+    const message = {
+      text: '신청 미전달완료 알림',
       username: SLACK_NOTIFICATION_PROPERTY.founderConsultUsername,
       attachments: [
         {
           fields: [
             {
-              title: `${SLACK_NOTIFICATION_PROPERTY.founderConsultUsername}`,
-              value: `오늘 전달완료하지 못한 방문자 신청 아이디들입니다. `,
+              title: SLACK_NOTIFICATION_PROPERTY.founderConsultUsername,
+              value: '오늘 전달완료하지 못한 방문자 신청 아이디들입니다.',
               short: false,
             },
-            ...field,
+            ...fields,
           ],
         },
       ],

@@ -1,3 +1,4 @@
+import { YN } from 'src/common';
 import { BaseEntity, SPACE_PIC_STATUS } from 'src/core';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -9,6 +10,18 @@ export class DeliverySpace extends BaseEntity<DeliverySpace> {
     unsigned: true,
   })
   no: number;
+
+  @Column({
+    type: 'char',
+    name: 'DEL_YN',
+  })
+  delYn: YN;
+
+  @Column({
+    type: 'char',
+    name: 'SHOW_YN',
+  })
+  showYn: YN;
 
   @Column({
     type: 'varchar',
