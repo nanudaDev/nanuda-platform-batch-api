@@ -3,6 +3,7 @@ import {
   BaseService,
   NanudaSlackNotificationService,
   FOUNDER_CONSULT,
+  B2B_FOUNDER_CONSULT,
 } from 'src/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { DeliveryFounderConsult } from './delivery-founder-consult.entity';
@@ -22,13 +23,16 @@ export class FounderConsultService extends BaseService {
     super();
   }
 
+  /**
+   * send warning notification
+   */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async sendWarningNotification() {
     const deliveryFounderConsults = await this.deliveryFounderConsultRepo
       .createQueryBuilder('deliveryConsult')
       .select(['deliveryConsult.no'])
       .where('deliveryConsult.status = :status', {
-        status: FOUNDER_CONSULT.F_NEW_REG,
+        status: B2B_FOUNDER_CONSULT.B2B_F_NEW_REG,
       })
       .getMany();
     const ids = [];
