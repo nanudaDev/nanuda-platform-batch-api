@@ -23,24 +23,24 @@ export class DeliverySpaceService extends BaseService {
   /**
    * remind everyday of what pictures are incomplete
    */
-  @Cron(CronExpression.EVERY_DAY_AT_NOON)
-  async pictureReminder() {
-    const qb = await this.deliverySpaceRepo
-      .createQueryBuilder('deliverySpace')
-      .where('deliverySpace.delYn = :delYn', { delYn: YN.NO })
-      .andWhere('deliverySpace.showYn = :showYn', { showYn: YN.YES })
-      .andWhere('deliverySpace.picStatus = :picStatus', {
-        picStatus: SPACE_PIC_STATUS.INCOMPLETE,
-      })
-      .select(['deliverySpace.no'])
-      .getMany();
+  // @Cron(CronExpression.EVERY_DAY_AT_NOON)
+  // async pictureReminder() {
+  //   const qb = await this.deliverySpaceRepo
+  //     .createQueryBuilder('deliverySpace')
+  //     .where('deliverySpace.delYn = :delYn', { delYn: YN.NO })
+  //     .andWhere('deliverySpace.showYn = :showYn', { showYn: YN.YES })
+  //     .andWhere('deliverySpace.picStatus = :picStatus', {
+  //       picStatus: SPACE_PIC_STATUS.INCOMPLETE,
+  //     })
+  //     .select(['deliverySpace.no'])
+  //     .getMany();
 
-    const ids = [];
-    qb.map(id => {
-      ids.push(id.no);
-    });
-    await this.nanudaSlackNotificationService.sendIncompleteDeliverySpacePictureNotification(
-      ids,
-    );
-  }
+  //   const ids = [];
+  //   qb.map(id => {
+  //     ids.push(id.no);
+  //   });
+  //   await this.nanudaSlackNotificationService.sendIncompleteDeliverySpacePictureNotification(
+  //     ids,
+  //   );
+  // }
 }
