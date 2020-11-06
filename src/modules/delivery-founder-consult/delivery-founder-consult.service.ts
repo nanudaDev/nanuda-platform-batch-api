@@ -26,19 +26,20 @@ export class FounderConsultService extends BaseService {
   /**
    * send warning notification
    */
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_DAY_AT_6PM)
   async sendWarningNotification() {
     const deliveryFounderConsults = await this.deliveryFounderConsultRepo
       .createQueryBuilder('deliveryConsult')
       .select(['deliveryConsult.no'])
       .where('deliveryConsult.status = :status', {
-        status: B2B_FOUNDER_CONSULT.B2B_F_NEW_REG,
+        status: FOUNDER_CONSULT.F_NEW_REG,
       })
       .getMany();
     const ids = [];
     deliveryFounderConsults.map(id => {
       ids.push(id.no);
     });
+    console.log(ids);
     if (ids && ids.length > 0) {
       await this.nanudaSlackNotificationService.sendIncompleteFounderConsultNotification(
         ids,

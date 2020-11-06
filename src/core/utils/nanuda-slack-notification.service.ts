@@ -77,7 +77,7 @@ export class NanudaSlackNotificationService extends BaseService {
           fields: [
             {
               title: SLACK_NOTIFICATION_PROPERTY.founderConsultUsername,
-              value: '오늘 전달완료하지 못한 방문자 신청 아이디들입니다.',
+              value: '오늘 전달완료하지 못한 배달형 신청 ID들입니다.',
               short: false,
             },
             ...fields,
