@@ -146,6 +146,24 @@ declare module 'typeorm/query-builder/SelectQueryBuilder' {
       this: SelectQueryBuilder<Entity>,
       years: number,
     ): SelectQueryBuilder<Entity>;
+    /**
+     * 몇 일 전 찾기
+     * @param this
+     * @param days
+     */
+    AndWhereXDaysBefore(
+      this: SelectQueryBuilder<Entity>,
+      days: number,
+    ): SelectQueryBuilder<Entity>;
+    /**
+     * 당일 쿼리
+     * @param this
+     * @param date
+     */
+    AndWhereOnDayOf(
+      this: SelectQueryBuilder<Entity>,
+      date: string,
+    ): SelectQueryBuilder<Entity>;
   }
 }
 
@@ -285,6 +303,33 @@ SelectQueryBuilder.prototype.AndWhereIn = function<Entity>(
       {
         [`${alias}${ALIAS_DELIMETER}${property}`]: values,
       },
+    );
+  }
+  return this;
+};
+
+/**
+ * find three days before
+ */
+SelectQueryBuilder.prototype.AndWhereXDaysBefore = function<Entity>(
+  this: SelectQueryBuilder<Entity>,
+  days: number,
+  excludedRequestDto?: any,
+): SelectQueryBuilder<Entity> {
+  this.andWhere(`NOW() >= (PRESENTATION_DATE  - INTERVAL ${days} DAY)`);
+  return this;
+};
+
+/**
+ * the day of
+ */
+SelectQueryBuilder.prototype.AndWhereOnDayOf = function<Entity>(
+  this: SelectQueryBuilder<Entity>,
+  date: string,
+) {
+  if (date) {
+    this.andWhere(
+      `PRESENTATION_DATE BETWEEN ${date} 00:00:00 AND ${date} 23:59:59`,
     );
   }
   return this;

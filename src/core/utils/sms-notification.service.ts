@@ -33,4 +33,7 @@ export class SmsAuthNotificationService extends BaseService {
     auth.testmode_yn = process.env.ALIGO_TESTMODE;
     return auth;
   }
+
+  // 창업 설명회 3일 전 문자 발송
+  private async __send_three_days_before_message() {}
 }

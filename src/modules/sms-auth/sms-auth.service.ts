@@ -26,7 +26,7 @@ export class SmsAuthService extends BaseService {
       .delete()
       .execute();
     if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
-      console.log(`Deleted ${deleted.affected} rows of data`);
+      // console.log(`Deleted ${deleted.affected} rows of data`);
     }
     return;
   }
