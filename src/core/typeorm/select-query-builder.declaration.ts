@@ -162,7 +162,7 @@ declare module 'typeorm/query-builder/SelectQueryBuilder' {
      */
     AndWhereOnDayOf(
       this: SelectQueryBuilder<Entity>,
-      date: string,
+      date: string | Date,
     ): SelectQueryBuilder<Entity>;
   }
 }
@@ -325,8 +325,9 @@ SelectQueryBuilder.prototype.AndWhereXDaysBefore = function<Entity>(
  */
 SelectQueryBuilder.prototype.AndWhereOnDayOf = function<Entity>(
   this: SelectQueryBuilder<Entity>,
-  date: string,
+  date: string | Date,
 ) {
+  console.log(date);
   if (date) {
     this.andWhere(
       `PRESENTATION_DATE BETWEEN '${date} 00:00:00' AND '${date} 23:59:59'`,

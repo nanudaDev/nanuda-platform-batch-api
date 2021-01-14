@@ -1,9 +1,11 @@
 import { Injectable, Query } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { YN } from 'src/common';
-import { BaseService } from 'src/core';
+import { BaseService, PRESENTATION_DISPLAY_TYPE } from 'src/core';
 import { EntityManager, Repository } from 'typeorm';
 import { AttendeesOnline } from './attendees-online.entity';
+import { PresentationEvent } from './presentation-event.entity';
 
 @Injectable()
 export class AttendeesOnlineService extends BaseService {
@@ -57,7 +59,7 @@ export class AttendeesOnlineService extends BaseService {
    */
   async sendMessageDayBefore() {
     const currentDate = new Date();
-    if (currentDate < new Date('2020-01-30')) {
+    if (currentDate < new Date('2021-01-30')) {
       const qb = await this.attendeesOnlineRepo
         .createQueryBuilder('attendeesOnline')
         // .where('attendeesOnline.threeDayFlag = :threeDayFlag', {
@@ -82,13 +84,51 @@ export class AttendeesOnlineService extends BaseService {
     }
   }
 
+  /**
+   * send the day of the event
+   */
   async sendTheDayOfEvent() {
-    const todayDate = new Date().toISOString().slice(0, 10);
-    const qb = await this.attendeesOnlineRepo
-    .createQueryBuilder('attendeesOnline')
-    .AndWhereOnDayOf(todayDate)
-    .getMany()
-  // send text message
-    await Promise.all(qb.map(async q => {}))
+    const currentDate = new Date();
+    if (currentDate < new Date('2021-01-30')) {
+      const todayDate = new Date().toISOString().slice(0, 10);
+      // const todayDate = new Date('2021-01-18').toISOString().slice(0, 10);
+      const qb = await this.attendeesOnlineRepo
+        .createQueryBuilder('attendeesOnline')
+        .AndWhereOnDayOf(todayDate)
+        .getMany();
+
+      console.log(qb);
+      // send text message
+      if (qb && qb.length > 0) {
+      }
+    }
+  }
+
+  // cron for six o clock
+  // @Cron(CronExpression.EVERY_DAY_AT_6PM)
+  async sendVideoLink() {
+    const currentDate = new Date();
+    if (currentDate < new Date('2021-01-30')) {
+      const todayDate = new Date().toISOString().slice(0, 10);
+      // const todayDate = new Date('2021-01-18').toISOString().slice(0, 10);
+      const qb = await this.attendeesOnlineRepo
+        .createQueryBuilder('attendeesOnline')
+        .AndWhereOnDayOf(todayDate)
+        .getMany();
+
+      const getZoomLink = await this.entityManager
+        .getRepository(PresentationEvent)
+        .createQueryBuilder('event')
+        .where('event.no = :no', { no: qb[0].eventNo })
+        .andWhere('event.displayType = :displayType', {
+          displayType: PRESENTATION_DISPLAY_TYPE.ONLINE,
+        })
+        .getOne();
+      console.log(getZoomLink.zoomLink);
+      console.log(qb);
+      // send text message
+      if (qb && qb.length > 0) {
+      }
+    }
   }
 }

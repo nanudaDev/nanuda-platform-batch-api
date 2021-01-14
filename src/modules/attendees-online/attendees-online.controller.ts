@@ -18,4 +18,12 @@ export class AttendeesOnlineController extends BaseController {
   async sendMessage(@Query() days: number) {
     return await this.attendeesOnlineService.sendMessageThreeDaysBefore(days);
   }
+
+  /**
+   * 당일 문자하기
+   */
+  @Get('/attendees-online/send-message-day-of')
+  async sendDayOfMessage() {
+    return await this.attendeesOnlineService.sendTheDayOfEvent();
+  }
 }
