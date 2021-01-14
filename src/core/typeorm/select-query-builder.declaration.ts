@@ -329,7 +329,7 @@ SelectQueryBuilder.prototype.AndWhereOnDayOf = function<Entity>(
 ) {
   if (date) {
     this.andWhere(
-      `PRESENTATION_DATE BETWEEN ${date} 00:00:00 AND ${date} 23:59:59`,
+      `PRESENTATION_DATE BETWEEN '${date} 00:00:00' AND '${date} 23:59:59'`,
     );
   }
   return this;

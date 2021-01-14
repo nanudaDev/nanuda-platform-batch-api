@@ -82,5 +82,13 @@ export class AttendeesOnlineService extends BaseService {
     }
   }
 
-  async sendTheDayOfEvent() {}
+  async sendTheDayOfEvent() {
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const qb = await this.attendeesOnlineRepo
+    .createQueryBuilder('attendeesOnline')
+    .AndWhereOnDayOf(todayDate)
+    .getMany()
+  // send text message
+    await Promise.all(qb.map(async q => {}))
+  }
 }
