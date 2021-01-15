@@ -20,6 +20,7 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send message three days before
    */
+  // @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendMessageThreeDaysBefore(days: number) {
     //   get date if date is over january 29th stop cron job
     // days default to 3
@@ -57,6 +58,7 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * Day before message send
    */
+  // @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendMessageDayBefore() {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
