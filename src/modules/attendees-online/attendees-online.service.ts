@@ -72,12 +72,12 @@ export class AttendeesOnlineService extends BaseService {
         .where('attendeesOnline.dayBeforeMessageSent = :dayBeforeMessageSent', {
           dayBeforeMessageSent: YN.NO,
         })
-        .AndWhereXDaysBefore(1)
+        .AndWhereXDaysBefore(0.8)
         .getMany();
       console.log(qb);
       if (qb && qb.length > 0) {
         // send message
-        await this.smsNotificationService.sendThreeDaysBeforeMessage(qb, req);
+        await this.smsNotificationService.sendOneDayBeforeMessage(qb, req);
         // update column
         await Promise.all(
           qb.map(async q => {

@@ -25,7 +25,7 @@ export class AttendeesOnlineController extends BaseController {
     );
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  // @Cron(CronExpression.EVERY_DAY_AT_9PM)
   @Get('/attendees-online/send-message-day-before')
   async sendMessageDayBefore(@Req() req: Request) {
     return await this.attendeesOnlineService.sendMessageDayBefore(req);
