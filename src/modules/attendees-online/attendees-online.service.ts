@@ -101,10 +101,24 @@ export class AttendeesOnlineService extends BaseService {
         .createQueryBuilder('attendeesOnline')
         .AndWhereOnDayOf(todayDate)
         .getMany();
-
+      const getZoomLink = await this.entityManager
+        .getRepository(PresentationEvent)
+        .createQueryBuilder('event')
+        .where('event.no = :no', { no: qb[0].eventNo })
+        .andWhere('event.displayType = :displayType', {
+          displayType: PRESENTATION_DISPLAY_TYPE.ONLINE,
+        })
+        .getOne();
       console.log(qb);
       // send text message
       if (qb && qb.length > 0) {
+        await this.smsNotificationService.sendDayOfMessage(
+          qb,
+          getZoomLink.zoomLink,
+          getZoomLink.zoomId,
+          getZoomLink.zoomPassword,
+          req,
+        );
       }
     }
   }
@@ -120,16 +134,6 @@ export class AttendeesOnlineService extends BaseService {
         .createQueryBuilder('attendeesOnline')
         .AndWhereOnDayOf(todayDate)
         .getMany();
-
-      const getZoomLink = await this.entityManager
-        .getRepository(PresentationEvent)
-        .createQueryBuilder('event')
-        .where('event.no = :no', { no: qb[0].eventNo })
-        .andWhere('event.displayType = :displayType', {
-          displayType: PRESENTATION_DISPLAY_TYPE.ONLINE,
-        })
-        .getOne();
-      console.log(getZoomLink.zoomLink);
       console.log(qb);
       // send text message
       if (qb && qb.length > 0) {
