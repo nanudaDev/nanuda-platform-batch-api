@@ -16,13 +16,10 @@ export class AttendeesOnlineController extends BaseController {
    * send message
    * @param days
    */
-  // @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  @Cron(CronExpression.EVERY_DAY_AT_9PM)
   @Get('/attendees-online/three-day-message')
-  async sendMessage(@Query() days: number, @Req() req: Request) {
-    return await this.attendeesOnlineService.sendMessageThreeDaysBefore(
-      days,
-      req,
-    );
+  async sendMessage(@Req() req: Request) {
+    return await this.attendeesOnlineService.sendMessageThreeDaysBefore(req);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_9PM)
@@ -34,7 +31,7 @@ export class AttendeesOnlineController extends BaseController {
   /**
    * 당일 문자하기
    */
-  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
   @Get('/attendees-online/send-message-day-of')
   async sendDayOfMessage(@Req() req: Request) {
     return await this.attendeesOnlineService.sendTheDayOfEvent(req);

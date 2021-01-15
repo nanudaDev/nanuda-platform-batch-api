@@ -51,6 +51,18 @@ export class AttendeesOnline extends BaseMapperEntity<AttendeesOnline> {
   presentationDate: Date;
 
   @Column({
+    name: 'THREE_DAY_MESSAGE_DATE',
+    type: 'varchar',
+  })
+  threeDayBeforeMessageDate: Date;
+
+  @Column({
+    name: 'ONE_DAY_BEFORE_MESSAGE_DATE',
+    type: 'varchar',
+  })
+  oneDayBeforeMessageDate: Date;
+
+  @Column({
     name: 'THREE_DAY_MESSAGE_SENT',
     type: 'char',
   })
