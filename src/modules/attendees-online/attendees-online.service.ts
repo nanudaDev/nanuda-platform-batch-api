@@ -3,12 +3,13 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express';
 import { YN } from 'src/common';
+import { ENVIRONMENT } from 'src/config';
 import { BaseService, PRESENTATION_DISPLAY_TYPE } from 'src/core';
 import { SmsAuthNotificationService } from 'src/core/utils/sms-notification.service';
 import { EntityManager, Repository } from 'typeorm';
 import { AttendeesOnline } from './attendees-online.entity';
 import { PresentationEvent } from './presentation-event.entity';
-
+require('dotenv').config();
 @Injectable()
 export class AttendeesOnlineService extends BaseService {
   constructor(
@@ -23,13 +24,12 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send message three days before
    */
-  async sendMessageThreeDaysBefore(days: number, req: Request) {
+  async sendMessageThreeDaysBefore(req: Request) {
     //   get date if date is over january 29th stop cron job
     // days default to 3
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
-      //   const todayDate = new Date().toISOString().slice(0, 10);
-      //   console.log(todayDate);
+      const todayDate = new Date().toISOString().slice(0, 10);
       const qb = await this.attendeesOnlineRepo
         .createQueryBuilder('attendeesOnline')
         .where('attendeesOnline.threeDayFlag = :threeDayFlag', {
@@ -41,9 +41,15 @@ export class AttendeesOnlineService extends BaseService {
             threeDayMessageSent: YN.NO,
           },
         )
-        .AndWhereXDaysBefore(2.8)
+        // .AndWhereXDaysBefore(2.8)
+        .andWhere(
+          'attendeesOnline.threeDayBeforeMessageDate = :threeDayBeforeMessageDate',
+          { threeDayBeforeMessageDate: todayDate },
+        )
         .getMany();
-      console.log(qb);
+      if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+        console.log(qb);
+      }
       if (qb && qb.length > 0) {
         // send message
         await this.smsNotificationService.sendThreeDaysBeforeMessage(qb, req);
@@ -64,6 +70,8 @@ export class AttendeesOnlineService extends BaseService {
   async sendMessageDayBefore(req: Request) {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
+      const todayDate = new Date().toISOString().slice(0, 10);
+      console.log(todayDate);
       const qb = await this.attendeesOnlineRepo
         .createQueryBuilder('attendeesOnline')
         // .where('attendeesOnline.threeDayFlag = :threeDayFlag', {
@@ -72,9 +80,15 @@ export class AttendeesOnlineService extends BaseService {
         .where('attendeesOnline.dayBeforeMessageSent = :dayBeforeMessageSent', {
           dayBeforeMessageSent: YN.NO,
         })
-        .AndWhereXDaysBefore(0.8)
+        // .AndWhereXDaysBefore(0.8)
+        .andWhere(
+          'attendeesOnline.oneDayBeforeMessageDate = :oneDayBeforeMessageDate',
+          { oneDayBeforeMessageDate: todayDate },
+        )
         .getMany();
-      console.log(qb);
+      if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+        console.log(qb);
+      }
       if (qb && qb.length > 0) {
         // send message
         await this.smsNotificationService.sendOneDayBeforeMessage(qb, req);
@@ -96,7 +110,6 @@ export class AttendeesOnlineService extends BaseService {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
       const todayDate = new Date().toISOString().slice(0, 10);
-      // const todayDate = new Date('2021-01-18').toISOString().slice(0, 10);
       const qb = await this.attendeesOnlineRepo
         .createQueryBuilder('attendeesOnline')
         .AndWhereOnDayOf(todayDate)
@@ -125,6 +138,7 @@ export class AttendeesOnlineService extends BaseService {
 
   // cron for six o clock
   // @Cron(CronExpression.EVERY_DAY_AT_6PM)
+  // TODO: THURSDAY OR FRIDAY NEXT WEEK
   async sendVideoLink(req: Request) {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
