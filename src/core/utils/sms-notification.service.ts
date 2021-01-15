@@ -88,8 +88,7 @@ export class SmsAuthNotificationService extends BaseService {
     const body = {
       receiver: attendees.phone,
       sender: process.env.ALIGO_SENDER_PHONE,
-      msg: `[나누디키친] 안녕하세요 ${attendees.name}님, 나누다키친입니다. \n나누다키친 온라인 창업 설명회에 신청해주셔서 감사드립니다. \n\n온라인 창업설명회 안내드립니다. \n\n날짜: ${todayDate}\n시간: ${attendees.eventTime}\n이용방법: 줌(ZOOM) 사이트 또는 앱으로 간편하게 화상으로 창업설명회에 참여 가능합니다.\n\n문의사항이 있으신 경우 해당 번호로 연락주시면 상담 도와드리겠습니다.\n\n나누다키친 영업시간 : 평일 10시~18시\n\n
-      감사합니다 \n나누다키친 드림. \n\nTEL:02-556-5777 \n무료 거부 080-870-0727`,
+      msg: `[나누디키친] 안녕하세요 ${attendees.name}님, 나누다키친입니다. \n나누다키친 온라인 창업 설명회에 신청해주셔서 감사드립니다. \n\n온라인 창업설명회 안내드립니다. \n\n날짜: ${todayDate}\n시간: ${attendees.eventTime}\n이용방법: 줌(ZOOM) 사이트 또는 앱으로 간편하게 화상으로 창업설명회에 참여 가능합니다.\n\n문의사항이 있으신 경우 해당 번호로 연락주시면 상담 도와드리겠습니다.\n\n나누다키친 영업시간 : 평일 10시~18시\n\n감사합니다 \n나누다키친 드림.\n\nTEL:${process.env.ALIGO_SECONDARY_PHONE}`,
       title: '안녕하세요 나누디키친입니다.',
     };
 
@@ -110,9 +109,7 @@ export class SmsAuthNotificationService extends BaseService {
       receiver: attendees.phone,
       sender: process.env.ALIGO_SENDER_PHONE,
       msg: `[나누디키친] 안녕하세요 ${attendees.name}님, 나누다키친입니다. \n나누다키친 온라인 창업 설명회에 신청해주셔서 감사드립니다. \n\n금일 5시에 온라인 창업설명회가 시작합니다.
-      줌(ZOOM) 사이트 또는 앱으로 들어가 아래 아이디를 입력하신 후 참가버튼을 눌러 참여해주세요 \n\n줌링크: ${zoomLink}\n줌 회의 ID: ${zoomId}\n암호: ${zoomPassword}.\n\n화상 회의에 참여만 하는 입장이기에 ZOOM 홀페이지에 별도로 가입하거나 로그인하지 않으셔도 됩니다.\n\n문의사항이 있으신 경우 해당 번호로 연락주시면 상담 도와드리겠습니다.
-      감사합니다\n\n나누다키친 영업시간 : 평일 10시~18시\n\n
-      감사합니다 \n나누다키친 드림. \n\nTEL:02-556-5777 \n무료 거부 080-870-0727`,
+      줌(ZOOM) 사이트 또는 앱으로 들어가 아래 아이디를 입력하신 후 참가버튼을 눌러 참여해주세요 \n\n줌링크: ${zoomLink}\n줌 회의 ID: ${zoomId}\n암호: ${zoomPassword}.\n\n화상 회의에 참여만 하는 입장이기에 ZOOM 홀페이지에 별도로 가입하거나 로그인하지 않으셔도 됩니다.\n\n문의사항이 있으신 경우 해당 번호로 연락주시면 상담 도와드리겠습니다.\n\n나누다키친 영업시간 : 평일 10시~18시\n\n감사합니다 \n나누다키친 드림. \n\nTEL:${process.env.ALIGO_SECONDARY_PHONE}`,
       title: '안녕하세요 나누디키친입니다.',
     };
 
