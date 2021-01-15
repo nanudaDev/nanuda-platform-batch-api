@@ -1,8 +1,10 @@
 import { Injectable, Query } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { Request } from 'express';
 import { YN } from 'src/common';
 import { BaseService, PRESENTATION_DISPLAY_TYPE } from 'src/core';
+import { SmsAuthNotificationService } from 'src/core/utils/sms-notification.service';
 import { EntityManager, Repository } from 'typeorm';
 import { AttendeesOnline } from './attendees-online.entity';
 import { PresentationEvent } from './presentation-event.entity';
@@ -13,6 +15,7 @@ export class AttendeesOnlineService extends BaseService {
     @InjectRepository(AttendeesOnline)
     private readonly attendeesOnlineRepo: Repository<AttendeesOnline>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    private readonly smsNotificationService: SmsAuthNotificationService,
   ) {
     super();
   }
@@ -20,7 +23,7 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send message three days before
    */
-  async sendMessageThreeDaysBefore(days: number) {
+  async sendMessageThreeDaysBefore(days: number, req: Request) {
     //   get date if date is over january 29th stop cron job
     // days default to 3
     const currentDate = new Date();
@@ -43,6 +46,7 @@ export class AttendeesOnlineService extends BaseService {
       console.log(qb);
       if (qb && qb.length > 0) {
         // send message
+        await this.smsNotificationService.sendThreeDaysBeforeMessage(qb, req);
         // update column
         await Promise.all(
           qb.map(async q => {
@@ -57,7 +61,7 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * Day before message send
    */
-  async sendMessageDayBefore() {
+  async sendMessageDayBefore(req: Request) {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
       const qb = await this.attendeesOnlineRepo
@@ -73,6 +77,7 @@ export class AttendeesOnlineService extends BaseService {
       console.log(qb);
       if (qb && qb.length > 0) {
         // send message
+        await this.smsNotificationService.sendThreeDaysBeforeMessage(qb, req);
         // update column
         await Promise.all(
           qb.map(async q => {
@@ -87,7 +92,7 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send the day of the event
    */
-  async sendTheDayOfEvent() {
+  async sendTheDayOfEvent(req?: Request) {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
       const todayDate = new Date().toISOString().slice(0, 10);
@@ -106,7 +111,7 @@ export class AttendeesOnlineService extends BaseService {
 
   // cron for six o clock
   // @Cron(CronExpression.EVERY_DAY_AT_6PM)
-  async sendVideoLink() {
+  async sendVideoLink(req: Request) {
     const currentDate = new Date();
     if (currentDate < new Date('2021-01-30')) {
       const todayDate = new Date().toISOString().slice(0, 10);
