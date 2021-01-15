@@ -4,6 +4,7 @@ import {
   DeliveryFounderConsultModule,
   CompanyUserModule,
   DeliverySpaceModule,
+  AttendeesOnlineModule,
 } from './modules';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -16,6 +17,7 @@ require('dotenv').config();
       useClass: TypeOrmConfigService,
     }),
     HttpModule.registerAsync({ useClass: HttpConfigService }),
+    AttendeesOnlineModule,
     CompanyUserModule,
     DeliveryFounderConsultModule,
     DeliverySpaceModule,
