@@ -9,6 +9,7 @@ import { SmsAuthNotificationService } from 'src/core/utils/sms-notification.serv
 import { EntityManager, Repository } from 'typeorm';
 import { AttendeesOnline } from './attendees-online.entity';
 import { PresentationEvent } from './presentation-event.entity';
+import Axios from 'axios';
 require('dotenv').config();
 @Injectable()
 export class AttendeesOnlineService extends BaseService {
@@ -154,5 +155,26 @@ export class AttendeesOnlineService extends BaseService {
       if (qb && qb.length > 0) {
       }
     }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  async getThreeDayMessage() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/three-day-message`,
+    );
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  async getOneDayMessage() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/send-message-day-before`,
+    );
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
+  async getMessageDayOf() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/send-message-day-of`,
+    );
   }
 }
