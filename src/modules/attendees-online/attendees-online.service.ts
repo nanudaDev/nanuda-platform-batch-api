@@ -12,7 +12,7 @@ import { PresentationEvent } from './presentation-event.entity';
 import Axios from 'axios';
 require('dotenv').config();
 
-let __cron_expression_time = CronExpression.EVERY_DAY_AT_3PM;
+let __cron_expression_time = CronExpression.EVERY_DAY_AT_5PM;
 if (process.env.NODE_ENV === ENVIRONMENT.PRODUCTION) {
   __cron_expression_time = CronExpression.EVERY_DAY_AT_9PM;
 }
