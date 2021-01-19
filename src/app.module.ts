@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService, HttpConfigService } from './config';
+import { ScheduleModule } from '@nestjs/schedule';
 require('dotenv').config();
 @Module({
   imports: [
@@ -22,6 +23,7 @@ require('dotenv').config();
     DeliveryFounderConsultModule,
     DeliverySpaceModule,
     SmsAuthModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

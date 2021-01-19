@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SmsAuthNotificationService } from 'src/core/utils/sms-notification.service';
 import { AttendeesOnlineController } from './attendees-online.controller';
