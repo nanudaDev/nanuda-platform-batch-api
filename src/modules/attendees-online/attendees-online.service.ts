@@ -157,7 +157,7 @@ export class AttendeesOnlineService extends BaseService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  @Cron(CronExpression.EVERY_DAY_AT_3PM)
   async getThreeDayMessage() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/three-day-message`,
