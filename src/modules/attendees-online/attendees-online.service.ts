@@ -24,7 +24,8 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send message three days before
    */
-  async sendMessageThreeDaysBefore(req: Request) {
+  // @Cron(CronExpression.EVERY_MINUTE)
+  async sendMessageThreeDaysBefore(req?: Request) {
     //   get date if date is over january 29th stop cron job
     // days default to 3
     const currentDate = new Date();
