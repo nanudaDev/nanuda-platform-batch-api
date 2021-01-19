@@ -9,7 +9,13 @@ import { SmsAuthNotificationService } from 'src/core/utils/sms-notification.serv
 import { EntityManager, Repository } from 'typeorm';
 import { AttendeesOnline } from './attendees-online.entity';
 import { PresentationEvent } from './presentation-event.entity';
+import Axios from 'axios';
 require('dotenv').config();
+
+let __cron_expression_time = CronExpression.EVERY_DAY_AT_5PM;
+if (process.env.NODE_ENV === ENVIRONMENT.PRODUCTION) {
+  __cron_expression_time = CronExpression.EVERY_DAY_AT_9PM;
+}
 @Injectable()
 export class AttendeesOnlineService extends BaseService {
   constructor(
@@ -24,7 +30,8 @@ export class AttendeesOnlineService extends BaseService {
   /**
    * send message three days before
    */
-  async sendMessageThreeDaysBefore(req: Request) {
+  // @Cron(CronExpression.EVERY_MINUTE)
+  async sendMessageThreeDaysBefore(req?: Request) {
     //   get date if date is over january 29th stop cron job
     // days default to 3
     const currentDate = new Date();
@@ -153,5 +160,28 @@ export class AttendeesOnlineService extends BaseService {
       if (qb && qb.length > 0) {
       }
     }
+  }
+
+  // hit own controller for request handler
+  // change to 9PM when uploading to production
+  @Cron(__cron_expression_time)
+  async getThreeDayMessage() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/three-day-message`,
+    );
+  }
+
+  @Cron(__cron_expression_time)
+  async getOneDayMessage() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/send-message-day-before`,
+    );
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
+  async getMessageDayOf() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}attendees-online/send-message-day-of`,
+    );
   }
 }
