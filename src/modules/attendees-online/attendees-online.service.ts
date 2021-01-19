@@ -11,6 +11,11 @@ import { AttendeesOnline } from './attendees-online.entity';
 import { PresentationEvent } from './presentation-event.entity';
 import Axios from 'axios';
 require('dotenv').config();
+
+let __cron_expression_time = CronExpression.EVERY_DAY_AT_3PM;
+if (process.env.NODE_ENV === ENVIRONMENT.PRODUCTION) {
+  __cron_expression_time = CronExpression.EVERY_DAY_AT_9PM;
+}
 @Injectable()
 export class AttendeesOnlineService extends BaseService {
   constructor(
@@ -157,14 +162,16 @@ export class AttendeesOnlineService extends BaseService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_3PM)
+  // hit own controller for request handler
+  // change to 9PM when uploading to production
+  @Cron(__cron_expression_time)
   async getThreeDayMessage() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/three-day-message`,
     );
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  @Cron(__cron_expression_time)
   async getOneDayMessage() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/send-message-day-before`,
