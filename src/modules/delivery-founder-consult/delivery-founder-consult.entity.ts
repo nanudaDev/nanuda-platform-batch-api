@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { YN } from 'src/common';
 import { DeliverySpace } from '../delivery-space/delivery-space.entity';
+import { NanudaUser } from '../nanuda-user/nanuda-user.entity';
 
 @Entity({ name: 'B2B_DELIVERY_FOUNDER_CONSULT' })
 export class DeliveryFounderConsult extends BaseEntity<DeliveryFounderConsult> {
@@ -144,4 +145,8 @@ export class DeliveryFounderConsult extends BaseEntity<DeliveryFounderConsult> {
   @OneToOne(type => DeliverySpace)
   @JoinColumn({ name: 'DELIVERY_SPACE_NO' })
   deliverySpace?: DeliverySpace;
+
+  @OneToOne(type => NanudaUser)
+  @JoinColumn({ name: 'NANUDA_USER_NO' })
+  nanudaUser?: NanudaUser;
 }

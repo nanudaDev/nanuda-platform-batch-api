@@ -76,11 +76,11 @@ export class DeliveryFounderConsultService extends BaseService {
     const companyIds = [];
     const qb = await this.deliveryFounderConsultRepo
       .createQueryBuilder('deliveryFounderConsult')
-      .CustomInnerJoinAndSelect(['deliverySpace'])
+      .CustomInnerJoinAndSelect(['deliverySpace', 'nanudaUser'])
       .innerJoinAndSelect('deliverySpace.companyDistrict', 'companyDistrict')
       .innerJoinAndSelect('companyDistrict.company', 'company')
       .where('deliveryFounderConsult.openedAt IS NULL')
-      .andWhere('deliveryFounderConsult.status = :status', {
+      .orWhere('deliveryFounderConsult.status = :status', {
         status: FOUNDER_CONSULT.F_NEW_REG,
       })
       .getMany();
