@@ -13,7 +13,7 @@ export class DeliveryFounderConsult extends BaseEntity<DeliveryFounderConsult> {
 
   @Column({
     type: 'int',
-    name: 'SPACE_ID',
+    name: 'DELIVERY_SPACE_NO',
     nullable: false,
   })
   deliverySpaceNo: number;

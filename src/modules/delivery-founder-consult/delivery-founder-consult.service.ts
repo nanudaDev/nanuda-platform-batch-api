@@ -9,9 +9,10 @@ import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { DeliveryFounderConsult } from './delivery-founder-consult.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { YN } from 'src/common';
 
 @Injectable()
-export class FounderConsultService extends BaseService {
+export class DeliveryFounderConsultService extends BaseService {
   constructor(
     @InjectRepository(DeliveryFounderConsult)
     private readonly deliveryFounderConsultRepo: Repository<
@@ -45,5 +46,25 @@ export class FounderConsultService extends BaseService {
         ids,
       );
     }
+  }
+
+  /**
+   * send two hour reminder for company users every thirty minutes
+   * limit to one day
+   * TODO: limit to this day
+   */
+  async send2HourReminderForTheDayToCompanyUser() {
+    const todayDate = new Date().toISOString().slice(0, 10);
+    console.log(todayDate);
+    // const deliveryFounderConsults = await this.deliveryFounderConsultRepo
+    //   .createQueryBuilder('deliveryFounderConsult')
+    //   .where(
+    //     `deliveryFounderConsult.createdAt >= DATE_ADD(HOUR, -2, GETDATE())`,
+    //   )
+    //   // .andWhere('deliveryFounderConsult.createdAt < GETDATE()')
+    //   .andWhere('deliveryFounderConsult.openedAt IS NULL')
+    //   .getRawMany();
+
+    // console.log(deliveryFounderConsults);
   }
 }
