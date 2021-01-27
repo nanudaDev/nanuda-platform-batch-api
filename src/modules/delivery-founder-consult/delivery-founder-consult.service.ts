@@ -67,4 +67,30 @@ export class DeliveryFounderConsultService extends BaseService {
 
     // console.log(deliveryFounderConsults);
   }
+
+  /**
+   * send reminder message to company user
+   * @param req
+   */
+  async sendReminderToCompanyUser(req: Request) {
+    const companyIds = [];
+    const qb = await this.deliveryFounderConsultRepo
+      .createQueryBuilder('deliveryFounderConsult')
+      .CustomInnerJoinAndSelect(['deliverySpace'])
+      .innerJoinAndSelect('deliverySpace.companyDistrict', 'companyDistrict')
+      .innerJoinAndSelect('companyDistrict.company', 'company')
+      .where('deliveryFounderConsult.openedAt IS NULL')
+      .andWhere('deliveryFounderConsult.status = :status', {
+        status: FOUNDER_CONSULT.F_NEW_REG,
+      })
+      .getMany();
+
+    if (qb && qb.length > 0) {
+      qb.map(q => {
+        companyIds.push({
+          companyNo: q.deliverySpace.companyDistrict.companyNo,
+        });
+      });
+    }
+  }
 }

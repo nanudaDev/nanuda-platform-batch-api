@@ -1,6 +1,13 @@
 import { BaseEntity, FOUNDER_CONSULT, B2B_FOUNDER_CONSULT } from 'src/core';
-import { PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { YN } from 'src/common';
+import { DeliverySpace } from '../delivery-space/delivery-space.entity';
 
 @Entity({ name: 'B2B_DELIVERY_FOUNDER_CONSULT' })
 export class DeliveryFounderConsult extends BaseEntity<DeliveryFounderConsult> {
@@ -133,4 +140,8 @@ export class DeliveryFounderConsult extends BaseEntity<DeliveryFounderConsult> {
     nullable: true,
   })
   openedAt?: Date;
+
+  @OneToOne(type => DeliverySpace)
+  @JoinColumn({ name: 'DELIVERY_SPACE_NO' })
+  deliverySpace?: DeliverySpace;
 }
