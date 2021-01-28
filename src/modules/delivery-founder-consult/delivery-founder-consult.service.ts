@@ -5,6 +5,8 @@ import {
   FOUNDER_CONSULT,
   B2B_FOUNDER_CONSULT,
   COMPANY_USER,
+  RemoveDuplicateObject,
+  SmsAuthNotificationService,
 } from 'src/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { DeliveryFounderConsult } from './delivery-founder-consult.entity';
@@ -12,7 +14,8 @@ import { Repository, EntityManager } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { YN } from 'src/common';
 import { CompanyUser } from '../company-user/company-user.entity';
-
+import { Request } from 'express';
+import Axios from 'axios';
 @Injectable()
 export class DeliveryFounderConsultService extends BaseService {
   constructor(
@@ -22,6 +25,7 @@ export class DeliveryFounderConsultService extends BaseService {
     >,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     private readonly nanudaSlackNotificationService: NanudaSlackNotificationService,
+    private readonly smsNotificationService: SmsAuthNotificationService,
   ) {
     super();
   }
@@ -76,7 +80,7 @@ export class DeliveryFounderConsultService extends BaseService {
    * @param req
    */
   async sendReminderToCompanyUser(req: Request) {
-    const companyIds = [];
+    let companyIds = [];
     const deliveryFounderConsultIds = [];
     const qb = await this.deliveryFounderConsultRepo
       .createQueryBuilder('deliveryFounderConsult')
@@ -97,6 +101,7 @@ export class DeliveryFounderConsultService extends BaseService {
         });
         deliveryFounderConsultIds.push(q.no);
       });
+      companyIds = RemoveDuplicateObject(companyIds, 'companyNo');
       if (companyIds.length > 0) {
         await Promise.all(
           companyIds.map(async companyId => {
@@ -128,9 +133,21 @@ export class DeliveryFounderConsultService extends BaseService {
               })
               .getMany();
             // await this sms notification for user
+            await this.smsNotificationService.sendDailyFiveOClockReminder(
+              masterUser[0],
+              companyConsults,
+              req,
+            );
           }),
         );
       }
     }
+  }
+
+  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_5PM)
+  async sendReminderAtFive() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}delivery-founder-consult/notify-company-user-new-consults`,
+    );
   }
 }
