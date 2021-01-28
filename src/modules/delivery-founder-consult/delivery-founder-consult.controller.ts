@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { BaseController } from 'src/core';
 import { DeliveryFounderConsultService } from './delivery-founder-consult.service';
 
@@ -16,7 +17,9 @@ export class DeliveryFounderConsultController extends BaseController {
    * 미열람 확인
    */
   @Get('/delivery-founder-consult/notify-company-user-new-consults')
-  async sendForTodayRemind() {
-    return await this.deliveryFounderConsultService.send2HourReminderForTheDayToCompanyUser();
+  async sendForTodayRemind(@Req() req: Request) {
+    return await this.deliveryFounderConsultService.sendReminderToCompanyUser(
+      req,
+    );
   }
 }
