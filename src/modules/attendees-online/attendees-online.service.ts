@@ -129,7 +129,7 @@ export class AttendeesOnlineService extends BaseService {
           displayType: PRESENTATION_DISPLAY_TYPE.ONLINE,
         })
         .getOne();
-      console.log(qb);
+      console.log(qb.length);
       // send text message
       if (qb && qb.length > 0) {
         await this.smsNotificationService.sendDayOfMessage(
@@ -164,21 +164,21 @@ export class AttendeesOnlineService extends BaseService {
 
   // hit own controller for request handler
   // change to 9PM when uploading to production
-  @Cron(__cron_expression_time_5_or_9)
+  // @Cron(__cron_expression_time_5_or_9)
   async getThreeDayMessage() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/three-day-message`,
     );
   }
 
-  @Cron(__cron_expression_time_5_or_9)
+  // @Cron(__cron_expression_time_5_or_9)
   async getOneDayMessage() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/send-message-day-before`,
     );
   }
 
-  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
+  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_4PM)
   async getMessageDayOf() {
     await Axios.get(
       `${process.env.BATCH_API_URL}attendees-online/send-message-day-of`,

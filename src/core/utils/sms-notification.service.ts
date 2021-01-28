@@ -9,11 +9,17 @@ import { Request } from 'express';
 import { ENVIRONMENT } from 'src/config';
 import { resolve } from 'path';
 import * as fs from 'fs';
+import { DeliveryFounderConsult } from 'src/modules/delivery-founder-consult/delivery-founder-consult.entity';
 require('dotenv').config();
-export class AligoAuth {
+class AligoAuth {
   key: string;
   user_id: string;
   testmode_yn: YN | string;
+}
+
+class MessageObject {
+  body: object;
+  auth: AligoAuth;
 }
 
 @Injectable()
@@ -86,6 +92,23 @@ export class SmsAuthNotificationService extends BaseService {
     console.log('');
   }
 
+  async sendDailyFiveOClockReminder(
+    companyUser: CompanyUser,
+    consults: DeliveryFounderConsult[],
+    req: Request,
+  ) {
+    const payload = await this.__send_unopened_consult_reminder(
+      companyUser,
+      consults,
+    );
+    req.body = payload.body;
+    const sms = await aligoapi.send(req, payload.auth);
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      console.log(sms);
+    }
+    return;
+  }
+
   /**
    * 휴면계정 메시지
    */
@@ -152,5 +175,32 @@ export class SmsAuthNotificationService extends BaseService {
     };
 
     return body;
+  }
+
+  private async __send_unopened_consult_reminder(
+    companyUser: CompanyUser,
+    consults: DeliveryFounderConsult[],
+  ): Promise<MessageObject> {
+    const auth = await this.__get_auth();
+    const cartedConsults = [];
+    if (cartedConsults.length > 0) {
+      consults.map(consult => {
+        cartedConsults.push(
+          ` - ${consult.deliverySpace.companyDistrict.nameKr} - (${consult.nanudaUser.name} | ${consult.nanudaUser.phone})\n   연결링크: ${process.env.B2B_BASE_URL}founder-consult/${consult.no}`,
+        );
+      });
+    }
+    const body = {
+      receiver: companyUser.phone,
+      sender: process.env.ALIGO_SENDER_PHONE,
+      msg: `[나누다키친] 안녕하세요 나누다키친입니다. \n ${
+        consults[0].deliverySpace.companyDistrict.company.nameKr
+      }에 신청한 사용자들이 아직 상담을 못 받았습니다 \n\n ${[
+        ...cartedConsults,
+      ]}`,
+      title: '안녕하세요 나누다키친입니다.',
+    };
+
+    return { auth, body };
   }
 }

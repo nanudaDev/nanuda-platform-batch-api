@@ -1,6 +1,14 @@
 import { YN } from 'src/common';
 import { BaseEntity, SPACE_PIC_STATUS } from 'src/core';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { CompanyDistrict } from '../company-district/company-district.entity';
+import { Company } from '../company/company.entity';
 
 @Entity({ name: 'B2B_DELIVERY_SPACE' })
 export class DeliverySpace extends BaseEntity<DeliverySpace> {
@@ -30,4 +38,11 @@ export class DeliverySpace extends BaseEntity<DeliverySpace> {
     name: 'PIC_STATUS',
   })
   picStatus: SPACE_PIC_STATUS;
+
+  @ManyToOne(
+    type => CompanyDistrict,
+    companyDistrict => companyDistrict.deliverySpaces,
+  )
+  @JoinColumn({ name: 'COMPANY_DISTRICT_NO' })
+  companyDistrict?: CompanyDistrict;
 }
