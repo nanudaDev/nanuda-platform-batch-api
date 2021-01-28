@@ -4,12 +4,14 @@ import {
   NanudaSlackNotificationService,
   FOUNDER_CONSULT,
   B2B_FOUNDER_CONSULT,
+  COMPANY_USER,
 } from 'src/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { DeliveryFounderConsult } from './delivery-founder-consult.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { YN } from 'src/common';
+import { CompanyUser } from '../company-user/company-user.entity';
 
 @Injectable()
 export class DeliveryFounderConsultService extends BaseService {
@@ -70,10 +72,12 @@ export class DeliveryFounderConsultService extends BaseService {
 
   /**
    * send reminder message to company user
+   * FIVE O CLOCK
    * @param req
    */
   async sendReminderToCompanyUser(req: Request) {
     const companyIds = [];
+    const deliveryFounderConsultIds = [];
     const qb = await this.deliveryFounderConsultRepo
       .createQueryBuilder('deliveryFounderConsult')
       .CustomInnerJoinAndSelect(['deliverySpace', 'nanudaUser'])
@@ -85,12 +89,48 @@ export class DeliveryFounderConsultService extends BaseService {
       })
       .getMany();
 
+    // send message to individual companies
     if (qb && qb.length > 0) {
       qb.map(q => {
         companyIds.push({
           companyNo: q.deliverySpace.companyDistrict.companyNo,
         });
+        deliveryFounderConsultIds.push(q.no);
       });
+      if (companyIds.length > 0) {
+        await Promise.all(
+          companyIds.map(async companyId => {
+            const companyConsults = await this.deliveryFounderConsultRepo
+              .createQueryBuilder('deliveryFounderConsult')
+              .CustomInnerJoinAndSelect(['deliverySpace'])
+              .innerJoinAndSelect(
+                'deliverySpace.companyDistrict',
+                'companyDistrict',
+              )
+              .innerJoinAndSelect('companyDistrict.company', 'company')
+              .where('company.no = :no', { no: companyId.companyNo })
+              .AndWhereIn(
+                'deliveryFounderConsult',
+                'no',
+                deliveryFounderConsultIds,
+              )
+              .getMany();
+
+            // get master user for company
+            const masterUser = await this.entityManager
+              .getRepository(CompanyUser)
+              .createQueryBuilder('companyUser')
+              .where('companyUser.companyNo = :companyNo', {
+                companyNo: companyId.companyNo,
+              })
+              .andWhere('companyUser.authCode = :authCode', {
+                authCode: COMPANY_USER.ADMIN_COMPANY_USER,
+              })
+              .getMany();
+            // await this sms notification for user
+          }),
+        );
+      }
     }
   }
 }

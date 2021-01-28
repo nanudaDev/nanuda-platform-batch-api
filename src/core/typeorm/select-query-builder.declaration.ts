@@ -117,7 +117,7 @@ declare module 'typeorm/query-builder/SelectQueryBuilder' {
       alias: string,
       property: string,
       values: any[],
-      excludedRequestDto: any,
+      excludedRequestDto?: any,
     ): SelectQueryBuilder<Entity>;
     /**
      * between current started, ended
@@ -295,7 +295,7 @@ SelectQueryBuilder.prototype.AndWhereIn = function<Entity>(
   alias: string,
   property: string,
   values: any[],
-  excludedRequestDto: any,
+  excludedRequestDto?: any,
 ): SelectQueryBuilder<Entity> {
   if (values && values.length > 0) {
     this.andWhere(
