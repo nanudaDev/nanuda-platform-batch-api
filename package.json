@@ -30,6 +30,7 @@
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
+    "moment": "^2.29.1",
     "nestjs-cron": "^1.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
