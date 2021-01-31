@@ -22,4 +22,11 @@ export class DeliveryFounderConsultController extends BaseController {
       req,
     );
   }
+
+  @Get('/delivery-founder-consult/notify-user-delayed-consult')
+  async sendDelayedInformation(@Req() req: Request) {
+    return await this.deliveryFounderConsultService.sendDelayNotificationToUser(
+      req,
+    );
+  }
 }

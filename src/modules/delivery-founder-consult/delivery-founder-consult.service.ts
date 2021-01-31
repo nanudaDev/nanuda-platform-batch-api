@@ -7,6 +7,7 @@ import {
   COMPANY_USER,
   RemoveDuplicateObject,
   SmsAuthNotificationService,
+  APPROVAL_STATUS,
 } from 'src/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { DeliveryFounderConsult } from './delivery-founder-consult.entity';
@@ -144,10 +145,90 @@ export class DeliveryFounderConsultService extends BaseService {
     }
   }
 
-  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_5PM)
+  /**
+   * send delayed notification
+   * @param req
+   */
+  async sendDelayNotificationToUser(req: Request) {
+    const nanudaUserNo = [];
+    const deliveryFounderConsultIds = [];
+    const qb = await this.deliveryFounderConsultRepo
+      .createQueryBuilder('deliveryFounderConsult')
+      .CustomInnerJoinAndSelect(['deliverySpace', 'nanudaUser'])
+      .innerJoin('deliverySpace.companyDistrict', 'companyDistrict')
+      .innerJoinAndSelect('companyDistrict.company', 'company')
+      .where('company.companyStatus = :companyStatus', {
+        companyStatus: APPROVAL_STATUS.APPROVAL,
+      })
+      .andWhere(
+        'companyDistrict.companyDistrictStatus = :companyDistrictStatus',
+        { companyDistrictStatus: APPROVAL_STATUS.APPROVAL },
+      )
+      .andWhere('deliverySpace.remainingCount > 0')
+      .andWhere('deliveryFounderConsult.status = :status', {
+        status: FOUNDER_CONSULT.F_NEW_REG,
+      })
+      .orWhere('deliveryFounderConsult.openedAt IS NULL')
+      .getMany();
+
+    if (qb && qb.length > 0) {
+      qb.map(q => {
+        nanudaUserNo.push({
+          phone: q.nanudaUser.phone,
+          name: q.nanudaUser.name,
+          no: q.nanudaUser.no,
+        });
+        deliveryFounderConsultIds.push(q.no);
+      });
+      await Promise.all(
+        nanudaUserNo.map(async nanudaUser => {
+          const consults = await this.deliveryFounderConsultRepo
+            .createQueryBuilder('deliveryFounderConsult')
+            .CustomInnerJoinAndSelect(['deliverySpace', 'nanudaUser'])
+            .innerJoin('deliverySpace.companyDistrict', 'companyDistrict')
+            .innerJoinAndSelect('companyDistrict.company', 'company')
+            .where('company.companyStatus = :companyStatus', {
+              companyStatus: APPROVAL_STATUS.APPROVAL,
+            })
+            .andWhere(
+              'companyDistrict.companyDistrictStatus = :companyDistrictStatus',
+              { companyDistrictStatus: APPROVAL_STATUS.APPROVAL },
+            )
+            .andWhere('deliverySpace.remainingCount > 0')
+            .andWhere('deliveryFounderConsult.status = :status', {
+              status: FOUNDER_CONSULT.F_NEW_REG,
+            })
+            .orWhere('deliveryFounderConsult.openedAt IS NULL')
+            .andWhere('nanudaUser.no = :nanudaUserNo', {
+              nanudaUserNo: nanudaUser.no,
+            })
+            .AndWhereIn(
+              'deliveryFounderConsult',
+              'no',
+              deliveryFounderConsultIds,
+            )
+            .getMany();
+          await this.smsNotificationService.sendDelayedReminderToUser(
+            nanudaUser,
+            consults,
+            req,
+          );
+        }),
+      );
+    }
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_5PM)
   async sendReminderAtFive() {
     await Axios.get(
       `${process.env.BATCH_API_URL}delivery-founder-consult/notify-company-user-new-consults`,
+    );
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_6PM)
+  async sendDelayedNotification() {
+    await Axios.get(
+      `${process.env.BATCH_API_URL}delivery-founder-consult/notify-user-delayed-consults`,
     );
   }
 }
