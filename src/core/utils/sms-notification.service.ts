@@ -18,7 +18,7 @@ class AligoAuth {
 }
 
 class MessageObject {
-  body: object;
+  body: Record<string, unknown>;
   auth: AligoAuth;
 }
 
@@ -195,9 +195,9 @@ export class SmsAuthNotificationService extends BaseService {
       sender: process.env.ALIGO_SENDER_PHONE,
       msg: `[나누다키친] 안녕하세요 나누다키친입니다. \n ${
         consults[0].deliverySpace.companyDistrict.company.nameKr
-      }에 신청한 사용자들이 아직 상담을 못 받았습니다 \n\n ${[
-        ...cartedConsults,
-      ]}`,
+      }에 신청한 사용자들이 아직 상담을 못 받았습니다 \n\n ${cartedConsults.join(
+        ' ',
+      )}`,
       title: '안녕하세요 나누다키친입니다.',
     };
 
