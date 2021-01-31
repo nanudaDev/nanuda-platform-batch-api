@@ -10,6 +10,7 @@ import { ENVIRONMENT } from 'src/config';
 import { resolve } from 'path';
 import * as fs from 'fs';
 import { DeliveryFounderConsult } from 'src/modules/delivery-founder-consult/delivery-founder-consult.entity';
+import { NanudaUser } from 'src/modules/nanuda-user/nanuda-user.entity';
 require('dotenv').config();
 class AligoAuth {
   key: string;
@@ -92,6 +93,12 @@ export class SmsAuthNotificationService extends BaseService {
     console.log('');
   }
 
+  /**
+   * send daily reminder to company user
+   * @param companyUser
+   * @param consults
+   * @param req
+   */
   async sendDailyFiveOClockReminder(
     companyUser: CompanyUser,
     consults: DeliveryFounderConsult[],
@@ -99,6 +106,29 @@ export class SmsAuthNotificationService extends BaseService {
   ) {
     const payload = await this.__send_unopened_consult_reminder(
       companyUser,
+      consults,
+    );
+    req.body = payload.body;
+    const sms = await aligoapi.send(req, payload.auth);
+    if (process.env.NODE_ENV !== ENVIRONMENT.PRODUCTION) {
+      console.log(sms);
+    }
+    return;
+  }
+
+  /**
+   * 지연 메시지 전달
+   * @param nanudaUser
+   * @param consults
+   * @param req
+   */
+  async sendDelayedReminderToUser(
+    nanudaUser: Record<string, unknown>,
+    consults: DeliveryFounderConsult[],
+    req: Request,
+  ) {
+    const payload = await this.__send_delayed_consult_reminder_to_user(
+      nanudaUser,
       consults,
     );
     req.body = payload.body;
@@ -177,6 +207,11 @@ export class SmsAuthNotificationService extends BaseService {
     return body;
   }
 
+  /**
+   * send to customer user
+   * @param companyUser
+   * @param consults
+   */
   private async __send_unopened_consult_reminder(
     companyUser: CompanyUser,
     consults: DeliveryFounderConsult[],
@@ -196,6 +231,36 @@ export class SmsAuthNotificationService extends BaseService {
       msg: `[나누다키친] 안녕하세요 나누다키친입니다. \n ${
         consults[0].deliverySpace.companyDistrict.company.nameKr
       }에 신청한 사용자들이 아직 상담을 못 받았습니다 \n\n ${cartedConsults.join(
+        ' ',
+      )}`,
+      title: '안녕하세요 나누다키친입니다.',
+    };
+
+    return { auth, body };
+  }
+
+  /**
+   * send to user reminder at 6
+   * @param nanudaUser
+   * @param consults
+   */
+  private async __send_delayed_consult_reminder_to_user(
+    nanudaUser: Record<string, unknown>,
+    consults: DeliveryFounderConsult[],
+  ): Promise<MessageObject> {
+    const auth = await this.__get_auth();
+    const cartedConsults = [];
+    if (cartedConsults.length > 0) {
+      consults.map(consult => {
+        cartedConsults.push(
+          ` -${consult.deliverySpace.companyDistrict.company.nameKr} ${consult.deliverySpace.companyDistrict.nameKr}`,
+        );
+      });
+    }
+    const body = {
+      receiver: nanudaUser.phone,
+      sender: process.env.ALIGO_SENDER_PHONE,
+      msg: `[나누다키친] 안녕하세요 공유주방 플랫폼 나누다키친입니다. \n신청하신 공유주방 담당자들의 연락이 지연된 점에 대하여 안내 문자 보내드립니다. \n${cartedConsults.join(
         ' ',
       )}`,
       title: '안녕하세요 나누다키친입니다.',
